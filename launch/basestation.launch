@@ -1,0 +1,71 @@
+<launch>
+
+	<arg name="robot" default="fetch"/>  
+	<!-- <arg name="robot" default="mico"/>-->  
+	<!--<arg name="robot" default="pr2"/>  -->
+
+	<arg name="using_fetch" default="true"/>  	 
+	<arg name="using_mico" default="false"/>
+	<arg name="using_pr2" default="false"/>
+
+	<!--If this is true, we are using the real robot  --> 
+	<!--If this is false, we are using gazebo --> 
+	<arg name="use_real_hw" default="True"/>
+	<!--<arg name="use_real_hw" default="False"/>-->
+
+	<arg name="debug" default="false"/>
+
+
+	<group if="$(arg using_fetch)">
+	       	<!--We use an extra reference frame for grasp planning called the approach_tran.  This has Z pointing out of the gripper
+		We use this to plan our grasps so we first move to a pregrasp position, set the spread of the fingers, then move in towards the object along this direction. -->
+	    	<node pkg="tf" type="static_transform_publisher" name="hand_to_approach" args= "0, 0, 0, 0.70711, 0, 0.70711, 0 gripper_link approach_tran 100" />
+
+	    	  <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
+				<arg name="pipeline" default="$(optenv PLANNING_PIPELINE ompl)" />
+				<include file="$(find fetch_moveit_config)/launch/move_group.launch">
+				<arg name="allow_trajectory_execution" value="true"/>  
+				<arg name="fake_execution" value="false"/>
+				<arg name="info" value="true"/>
+				<arg name="debug" value="$(arg debug)"/>
+				<arg name="pipeline" value="$(arg pipeline)" />
+				</include>
+
+			  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+			  <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+
+			  <arg name="config" default="false" />
+			  <arg unless="$(arg config)" name="command_args" value="" />
+			  <arg     if="$(arg config)" name="command_args" value="-d $(find system_launch)/config/moveit.rviz" />
+			  
+			  <node name="$(anon rviz)" launch-prefix="$(arg launch_prefix)" pkg="rviz" type="rviz" respawn="false"
+				args="$(arg command_args)" output="screen">
+			    <rosparam command="load" file="$(find fetch_moveit_config)/config/kinematics.yaml"/>
+			  </node>
+   
+	</group>
+
+	<group if="$(arg using_mico)">
+		<!--We use an extra reference frame for grasp planning called the approach_tran.  This has Z pointing out of the gripper
+		We use this to plan our grasps so we first move to a pregrasp position, set the spread of the fingers, then move in towards the object along this direction. -->
+  	        <node pkg="tf" type="static_transform_publisher" name="hand_to_approach" args= "0, 0, 0, 0, 0, -1.57079632679, 1.57079632679 gripper_link approach_tran 100" />
+	</group>
+
+	<group if="$(arg using_pr2)">
+		<!--We use an extra reference frame for grasp planning called the approach_tran.  This has Z pointing out of the gripper
+		We use this to plan our grasps so we first move to a pregrasp position, set the spread of the fingers, then move in towards the object along this direction. --> 
+  	        <node pkg="tf" type="static_transform_publisher" name="hand_to_approach" args= "0, 0, 0, 0, 0, -1.57079632679, 1.57079632679 gripper_link approach_tran 100" />
+	</group>
+
+	<!--This subscribes to filtered_pc, and detects objects for world manager. -->
+    	<include file="$(find objrec_ros_integration)/launch/objrec_node.launch"/>
+
+    	<include file="$(find world_manager)/launch/world_manager.launch">
+        	 <arg name="robot" value="$(arg robot)" />
+    	</include>
+
+	<include file="$(find graspit_bci_plugin)/launch/ros_graspit_interface.launch"/>
+
+
+
+</launch>
