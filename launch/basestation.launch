@@ -1,6 +1,6 @@
 <launch>
 
-	<arg name="robot" default="fetch"/>  
+	<arg name="robot" default="fetch22"/>  
 	<!-- <arg name="robot" default="mico"/>-->  
 	<!--<arg name="robot" default="pr2"/>  -->
 
@@ -61,6 +61,10 @@
     	<include file="$(find objrec_ros_integration)/launch/objrec_node.launch"/>
 
     	<include file="$(find world_manager)/launch/world_manager.launch">
+        	 <arg name="robot" value="$(arg robot)" />
+    	</include>
+
+    	<include file="$(find reachability_analyzer)/launch/reachability_analyzer.launch">
         	 <arg name="robot" value="$(arg robot)" />
     	</include>
 
