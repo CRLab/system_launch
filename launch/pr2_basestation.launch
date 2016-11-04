@@ -1,0 +1,18 @@
+<launch>
+
+	<arg name="robot" default="pr2"/>
+	<arg name="using_fetch" default="false"/>  	 
+	<arg name="using_mico" default="false"/>
+	<arg name="using_pr2" default="true"/>
+	<arg name="debug" default="false"/>
+
+	<include file="$(find system_launch)/launch/basestation.launch">
+		 <arg name="robot" value="$(arg robot)" />
+		 <arg name="using_fetch" default="$(arg using_fetch)"/>  	 
+		 <arg name="using_mico" default="$(arg using_mico)"/>
+		 <arg name="using_pr2" default="$(arg using_pr2)"/>
+		 <arg name="debug" default="$(arg debug)"/>
+        </include>
+
+
+</launch>
