@@ -9,7 +9,8 @@
 	<group if="$(arg using_fetch)">
 	       	<!--We use an extra reference frame for grasp planning called the approach_tran.  This has Z pointing out of the gripper
 		We use this to plan our grasps so we first move to a pregrasp position, set the spread of the fingers, then move in towards the object along this direction. -->
-	    	<node pkg="tf" type="static_transform_publisher" name="hand_to_approach" args= "0, 0, 0, 0.70711, 0, 0.70711, 0 gripper_link approach_tran 100" />
+		    <!-- Larger positive X moves -->
+	    	<node pkg="tf" type="static_transform_publisher" name="hand_to_approach" args= "0.17, 0, 0, 0.5, 0.5, 0.5, 0.5 wrist_roll_link approach_tran 100" />
 
 	    	  <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
 				<arg name="pipeline" default="$(optenv PLANNING_PIPELINE ompl)" />
@@ -84,8 +85,10 @@
 
 	<include file="$(find graspit_bci_plugin)/launch/ros_graspit_interface.launch">
             <arg name="robot" value="$(arg robot)"/>
-    </include>
+	</include>
 
-
+    	<include file="$(find grasp_execution)/launch/grasp_execution.launch">
+        	 <arg name="robot" value="$(arg robot)" />
+    	</include>
 
 </launch>
